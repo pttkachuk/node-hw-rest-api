@@ -1,5 +1,7 @@
 const { Schema, model } = require('mongoose');
 const handleSaveErrors = require('../helpers/handleSaveErrors');
+const emailRegexp = require('../helpers/emailRegexp');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const contactsSchema = new Schema({
     name: {
@@ -8,7 +10,7 @@ const contactsSchema = new Schema({
     },
     email: {
         type: String,
-        match: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/,
+        match: emailRegexp,
     },
     phone: {
         type: String,
@@ -19,11 +21,17 @@ const contactsSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        required: true,
+    }
 },
     { versionKey: false, timestamps: true }
 );
 
 contactsSchema.post("save", handleSaveErrors);
+contactsSchema.plugin(mongoosePaginate);
 const Contact = model('contact', contactsSchema);
 module.exports = {
     Contact
